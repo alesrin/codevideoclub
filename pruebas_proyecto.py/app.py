@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, UserMixin
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, FloatField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
@@ -22,8 +22,9 @@ class Pelicula:
         self.titulo = titulo
         self.resumen = resumen
         self.caratula = caratula
-        self.precio_alquiler = precio_alquiler
         self.categoria = categoria
+        self.precio_alquiler = precio_alquiler
+        
 
     def to_dict(self):
         return {
@@ -61,7 +62,7 @@ def cargar_peliculas():
                 "categoria": "romance",
                 "precio_alquiler": 6.99
             }
-]
+        ]
 
         # Escribir los datos iniciales en el archivo JSON
         with open(jsnfile, 'w') as file:
@@ -93,9 +94,8 @@ class NuevaPeliculaForm(FlaskForm):
     titulo = StringField('Título', validators=[DataRequired()])
     resumen = StringField('Resumen', validators=[DataRequired()])
     caratula = StringField('URL de Carátula', validators=[DataRequired()])
-    precio_alquiler = StringField('Precio de Alquiler', validators=[DataRequired()])
+    precio_alquiler = FloatField('Precio de Alquiler', validators=[DataRequired()])
     categoria = StringField('Categoría', validators=[DataRequired()])
-    inventario = StringField('Inventario', validators=[DataRequired()])
     submit = SubmitField('Agregar')
 
 class LoginForm(FlaskForm):
@@ -147,7 +147,7 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('inicio.html', peliculas=peliculas)
+    return render_template('inicio.html', peliculas=cargar_peliculas())
 
 @app.route('/inicio_sesion', methods=['GET', 'POST'])
 def inicio_sesion():
@@ -186,23 +186,31 @@ def cerrar_sesion():
 def consola():
     form = NuevaPeliculaForm()
     if form.validate_on_submit():
-        titulo = form.titulo.data
-        resumen = form.resumen.data
-        caratula = form.caratula.data
-        categoria = form.categoria.data
-        precio_alquiler = form.precio_alquiler.data
+        # Crear una nueva instancia de Pelicula con los datos del formulario
+        pelicula = Pelicula(
+            titulo=form.titulo.data,
+            resumen=form.resumen.data,
+            caratula=form.caratula.data,
+            categoria=form.categoria.data,
+            precio_alquiler=form.precio_alquiler.data
+        )
 
-        pelicula = Pelicula(titulo, resumen, caratula, categoria, precio_alquiler)
-
-        # Cargar películas existentes
+        # Cargar películas existentes desde el archivo JSON
         peliculas = cargar_peliculas()
+
+        # Agregar la nueva película a la lista de películas
         peliculas.append(pelicula)
 
-        # Guardar películas actualizadas en data.json
+        # Guardar películas actualizadas en el archivo JSON
         guardar_peliculas(peliculas)
+
+        flash('Película agregada correctamente.', 'success')
         return redirect(url_for('index'))
 
-    return render_template('consola.html', form=form)
+    return render_template('consola.html', form=form, peliculas=cargar_peliculas())
+
+
+
 
 
 
