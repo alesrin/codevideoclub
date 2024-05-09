@@ -95,7 +95,7 @@ class NuevaPeliculaForm(FlaskForm):
     resumen = StringField('Resumen', validators=[DataRequired()])
     caratula = StringField('URL de Carátula', validators=[DataRequired()])
     precio_alquiler = FloatField('Precio de Alquiler', validators=[DataRequired()])
-    categoria = StringField('Categoría', validators=[DataRequired()])
+    categoria = SelectField('Categoría', choices=[('romance', 'Romance'), ('comedia', 'Comedia'), ('suspense', 'Suspense'), ('aventura', 'Aventura'), ('ciencia_ficcion', 'Ciencia Ficcion')], validators=[DataRequired()])
     submit = SubmitField('Agregar')
 
 class LoginForm(FlaskForm):

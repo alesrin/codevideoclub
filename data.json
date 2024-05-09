@@ -40,5 +40,12 @@
         "caratula": "solonecasa.webp",
         "categoria": "comedia",
         "precio_alquiler": 7.0
+    },
+    {
+        "titulo": "pelicula",
+        "resumen": "resumen",
+        "caratula": "solonecasa.webp",
+        "categoria": "suspense",
+        "precio_alquiler": 3.0
     }
 ]
